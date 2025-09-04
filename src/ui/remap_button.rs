@@ -39,7 +39,7 @@ impl RemapButton {
         InputMap::singleton().action_add_event(&action, &input_event);
         let button_group = self.group.as_mut().expect("No button group defined");
         for btn in button_group.get_buttons().iter_shared() {
-            let mut remap_btn = btn.try_cast::<RemapButton>().expect("Invalid button type in group");
+            let mut remap_btn = btn.try_cast::<RemapButton>().expect("All buttons in group should be RemapButtons");
             remap_btn.bind_mut().update_text();
         }
     }
