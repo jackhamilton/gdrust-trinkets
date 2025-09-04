@@ -1,6 +1,5 @@
 use freezable_trait::Freezable;
 use godot::prelude::GodotClass;
-use godot::prelude::godot_api;
 use std::ops::DerefMut;
 use godot::classes::file_access::ModeFlags;
 use std::ops::Deref;
@@ -20,24 +19,30 @@ pub struct Storage {
     items: HashMap<String, String>
 }
 
-#[godot_api]
 impl Storage {
-    pub fn save<T: Freezable>(key: &'static str, item: &T) {
+    pub fn save_st<T: Freezable>(key: &'static str, item: &T) {
+        Self::save(key.to_string(), item)
+    }
+
+    pub fn save<T: Freezable>(key: String, item: &T) {
         let string = serde_json::to_string(&item).expect("Error serializing string");
         SINGLETON.lock().expect("Could not lock storage").items.insert(key.to_string(), string);
     }
 
-    pub fn load<T: Freezable + std::default::Default>(key: &'static str) -> T {
+    pub fn load_st<T: Freezable + std::default::Default>(key: &'static str) -> T {
+        Self::load(key.to_string())
+    }
+
+    pub fn load<T: Freezable + std::default::Default>(key: String) -> T {
         let binding = SINGLETON.lock().expect("Failed to lock singleton");
         let items = &binding.deref().items;
-        let item = items.get(key);
+        let item = items.get(&key);
         match item {
             Some(value) => serde_json::from_str(value).expect("Failed to deserialize"),
             None => T::default()
         }
     }
 
-    #[func]
     pub fn save_all() {
         let mut file = FileAccess::open("user://game_data.save", ModeFlags::WRITE).expect("Failed to open data file");
         let singleton = SINGLETON.lock().expect("Failed to lock singleton");
@@ -45,7 +50,6 @@ impl Storage {
         file.store_string(&json);
     }
 
-    #[func]
     pub fn load_all() {
         if let Some(file) = FileAccess::open("user://game_data.save", ModeFlags::READ) {
             let json = file.get_as_text();

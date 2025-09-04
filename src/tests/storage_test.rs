@@ -48,16 +48,16 @@ impl Default for Example2 {
 #[test]
 fn test_string_serialize() {
     let str = "Test";
-    Storage::save("test_str", &"Test".to_string());
-    let out: String = Storage::load("test_str");
+    Storage::save_st("test_str", &"Test".to_string());
+    let out: String = Storage::load_st("test_str");
     assert_eq!(out, str);
 }
 
 #[test]
 fn test_struct_serialize() {
     let str = "Test";
-    Storage::save("test_str", &"Test".to_string());
-    let out: String = Storage::load("test_str");
+    Storage::save_st("test_str", &"Test".to_string());
+    let out: String = Storage::load_st("test_str");
     assert_eq!(out, str);
 }
 
@@ -69,27 +69,27 @@ fn test_freezable_serialize() {
         field3: true,
         field4: 3.0
     };
-    Storage::save("test_str", &test_struct);
-    let out: Example = Storage::load("test_str");
+    Storage::save_st("test_str", &test_struct);
+    let out: Example = Storage::load_st("test_str");
     assert_eq!(out, test_struct);
 }
 
 #[test]
 fn test_freezable_serialize_defaults() {
     let test_struct = Example::default();
-    let loaded_default = Storage::load::<Example>("test_str");
-    assert_eq!(loaded_default, test_struct);
+    let load_sted_default = Storage::load_st::<Example>("test_str");
+    assert_eq!(load_sted_default, test_struct);
 }
 
 #[test]
 fn test_partial_deserialization() {
     let test_struct = Example::default();
-    Storage::save("test_str", &test_struct);
-    let loaded_default = Storage::load::<Example2>("test_str");
-    println!("loaded: {:?}", loaded_default);
-    assert_eq!(loaded_default.field1, test_struct.field1);
-    assert_eq!(loaded_default.field2, test_struct.field2);
-    assert_eq!(loaded_default.field3, test_struct.field3);
-    assert_eq!(loaded_default.field4, test_struct.field4);
-    assert_eq!(loaded_default.field5, Example2::default().field5);
+    Storage::save_st("test_str", &test_struct);
+    let load_sted_default = Storage::load_st::<Example2>("test_str");
+    println!("load_sted: {:?}", load_sted_default);
+    assert_eq!(load_sted_default.field1, test_struct.field1);
+    assert_eq!(load_sted_default.field2, test_struct.field2);
+    assert_eq!(load_sted_default.field3, test_struct.field3);
+    assert_eq!(load_sted_default.field4, test_struct.field4);
+    assert_eq!(load_sted_default.field5, Example2::default().field5);
 }
