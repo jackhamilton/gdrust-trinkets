@@ -1,3 +1,4 @@
+use crate::libs::singletons::TrinketSingletons;
 use crate::persistence::storage_access::StorageAccessNode;
 use godot::prelude::*;
 
@@ -25,6 +26,8 @@ impl INode for PersistentString {
     }
 
     fn enter_tree(&mut self) {
+        self.storage_access = Some(TrinketSingletons::get_storage());
+
         let storage = self.storage_access.as_ref().expect("No storage access found").bind();
         if self.key.is_empty() {
             panic!("Cannot load value for empty key");
