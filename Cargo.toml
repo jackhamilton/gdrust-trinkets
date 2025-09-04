@@ -2,6 +2,12 @@
 name = "gdrust-trinkets"
 version = "0.1.0"
 edition = "2024"
+license = "Unlicense"
+authors = ["Jack Hamilton jackham800@gmail.com"]
+keywords = ["godot"]
+categories = ["game-development"]
+repository = "https://github.com/jackhamilton/gdrust-trinkets"
+description = "A collection of useful controls, traits, and macros for godot x rust development."
 
 [dependencies]
 freezable-macros = "0.1.0"
