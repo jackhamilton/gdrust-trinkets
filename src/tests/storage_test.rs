@@ -86,7 +86,7 @@ fn test_partial_deserialization() {
     let test_struct = Example::default();
     Storage::save_st("test_str", &test_struct);
     let load_sted_default = Storage::load_st::<Example2>("test_str");
-    println!("load_sted: {:?}", load_sted_default);
+    println!("load_sted: {load_sted_default:?}");
     assert_eq!(load_sted_default.field1, test_struct.field1);
     assert_eq!(load_sted_default.field2, test_struct.field2);
     assert_eq!(load_sted_default.field3, test_struct.field3);

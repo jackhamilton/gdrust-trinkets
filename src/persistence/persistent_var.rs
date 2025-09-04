@@ -9,7 +9,7 @@ pub struct PersistentVar<T: Freezable + Default> {
 }
 
 impl<T: Freezable + Default> PersistentVar<T> {
-    fn new(mut storage_access: Gd<StorageAccessNode>, key: String) -> Self {
+    pub fn new(mut storage_access: Gd<StorageAccessNode>, key: String) -> Self {
         let value = storage_access.bind_mut().load_value(key.clone());
         Self {
             storage_access,
