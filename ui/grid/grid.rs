@@ -1,7 +1,7 @@
-use crate::ui::grid::grid_size::UnitSize;
-use crate::ui::grid::grid_position::GridPosition;
-use crate::libs::traits::identifiable::Identifiable;
-use crate::ui::grid::grid_size::UnitSizable;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSize;
+use crate::gdrust_trinkets::ui::grid::grid_position::GridPosition;
+use crate::gdrust_trinkets::libs::traits::identifiable::Identifiable;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSizable;
 use godot::prelude::*;
 use std::collections::HashMap;
 use std::fmt::Display;

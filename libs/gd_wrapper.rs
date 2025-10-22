@@ -1,6 +1,6 @@
-use crate::ui::grid::grid_size::UnitSize;
-use crate::libs::traits::identifiable::Identifiable;
-use crate::ui::grid::grid_size::UnitSizable;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSize;
+use crate::gdrust_trinkets::libs::traits::identifiable::Identifiable;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSizable;
 use godot::obj::bounds::DeclUser;
 use godot::prelude::*;
 use std::fmt::Display;

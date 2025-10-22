@@ -1,5 +1,5 @@
-use crate::libs::singletons::TrinketSingletons;
-use crate::persistence::storage_access::StorageAccessNode;
+use crate::gdrust_trinkets::libs::singletons::TrinketSingletons;
+use crate::gdrust_trinkets::persistence::storage_access::StorageAccessNode;
 use godot::prelude::*;
 
 #[derive(GodotClass, Debug)]

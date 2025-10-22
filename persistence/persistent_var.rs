@@ -1,4 +1,4 @@
-use crate::persistence::storage_access::StorageAccessNode;
+use crate::gdrust_trinkets::persistence::storage_access::StorageAccessNode;
 use freezable_trait::Freezable;
 use godot::prelude::*;
 

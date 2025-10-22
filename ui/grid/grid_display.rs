@@ -1,19 +1,19 @@
-use crate::libs::gd_wrapper::GdWrapper;
-use crate::libs::sprite::Rescalable;
+use crate::gdrust_trinkets::libs::gd_wrapper::GdWrapper;
+use crate::gdrust_trinkets::libs::sprite::Rescalable;
 use godot::classes::Sprite2D;
 use godot::global::MouseButton;
-use crate::ui::grid::grid_cursor_display::Cursor;
-use crate::ui::grid::grid::InsertionError;
-use crate::libs::traits::identifiable::uuid;
+use crate::gdrust_trinkets::ui::grid::grid_cursor_display::Cursor;
+use crate::gdrust_trinkets::ui::grid::grid::InsertionError;
+use crate::gdrust_trinkets::libs::traits::identifiable::uuid;
 use godot::classes::InputEventMouseButton;
 use godot::classes::InputEvent;
 use godot::classes::IContainer;
 use godot::classes::Container;
-use crate::ui::grid::grid_size::UnitSize;
-use crate::ui::grid::grid_container::ObjectContainer;
-use crate::ui::grid::grid_position::GridPosition;
-use crate::ui::grid::grid_item::GridItem;
-use crate::ui::grid::grid::Grid;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSize;
+use crate::gdrust_trinkets::ui::grid::grid_container::ObjectContainer;
+use crate::gdrust_trinkets::ui::grid::grid_position::GridPosition;
+use crate::gdrust_trinkets::ui::grid::grid_item::GridItem;
+use crate::gdrust_trinkets::ui::grid::grid::Grid;
 use godot::prelude::*;
 
 #[derive(GodotClass)]

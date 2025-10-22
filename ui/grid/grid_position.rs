@@ -1,4 +1,4 @@
-use crate::ui::grid::grid_size::UnitSize;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSize;
 use godot::prelude::Vector2;
 use std::fmt::Display;
 

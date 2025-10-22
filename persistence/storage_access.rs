@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use std::sync::LazyLock;
-use crate::persistence::storage::Storage;
+use crate::gdrust_trinkets::persistence::storage::Storage;
 use freezable_trait::Freezable;
 use godot::prelude::*;
 

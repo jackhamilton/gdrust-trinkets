@@ -1,7 +1,7 @@
-use crate::libs::gd_wrapper::GdWrapper;
-use crate::ui::grid::grid_display::GridItemDisplay;
-use crate::ui::grid::grid_container::ContainerSystem;
-use crate::ui::grid::grid_item::GridItem;
+use crate::gdrust_trinkets::libs::gd_wrapper::GdWrapper;
+use crate::gdrust_trinkets::ui::grid::grid_display::GridItemDisplay;
+use crate::gdrust_trinkets::ui::grid::grid_container::ContainerSystem;
+use crate::gdrust_trinkets::ui::grid::grid_item::GridItem;
 use godot::prelude::*;
 use godot::classes::InputEvent;
 use godot::global;

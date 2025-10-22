@@ -3,7 +3,7 @@ use godot::classes::IHSlider;
 use godot::classes::HSlider;
 use godot::{prelude::*};
 
-use crate::libs::singletons::TrinketSingletons;
+use crate::gdrust_trinkets::libs::singletons::TrinketSingletons;
 
 #[derive(GodotClass, Debug)]
 #[class(base=HSlider)]

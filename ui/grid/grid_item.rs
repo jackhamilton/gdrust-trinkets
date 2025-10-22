@@ -1,5 +1,5 @@
-use crate::ui::grid::grid_size::UnitSizable;
-use crate::ui::grid::grid_size::UnitSize;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSizable;
+use crate::gdrust_trinkets::ui::grid::grid_size::UnitSize;
 use godot::prelude::*;
 use godot::classes::Node2D;
 use godot::classes::Sprite2D;

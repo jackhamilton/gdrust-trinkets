@@ -1,4 +1,4 @@
-use crate::persistence::storage_access::StorageAccessNode;
+use crate::gdrust_trinkets::persistence::storage_access::StorageAccessNode;
 use godot::prelude::*;
 
 pub struct TrinketSingletons {}
