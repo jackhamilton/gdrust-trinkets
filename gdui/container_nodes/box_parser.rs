@@ -2,17 +2,30 @@ use godot::prelude::*;
 
 use godot::classes::{Control, Container};
 use opencompose_rs::ast::OpenComposeAST;
+use opencompose_rs::configs::View::ViewConfig;
 
 use crate::gdrust_trinkets::gdui::ast_parser::ASTParser;
 
 pub struct ASTBoxParser {}
 impl ASTBoxParser {
-    pub fn parse_box(children: &OpenComposeAST) -> Gd<Control> {
+    pub fn parse_box(box_config: &ViewConfig, children: &OpenComposeAST) -> Gd<Control> {
         let mut box_view = Container::new_alloc();
         let child_controls: Vec<Gd<Control>> = match children {
-            OpenComposeAST::View(view_node) => vec![ ASTParser::parse_view_node(view_node) ],
-            OpenComposeAST::List(open_compose_asts) => ASTParser::parse_list(open_compose_asts),
-            OpenComposeAST::Container(container_node) => vec![ ASTParser::parse_container_node(container_node) ],
+            OpenComposeAST::View(config, view_node) => {
+                let mut inherited_config = config.clone();
+                inherited_config.inherit(box_config);
+                vec![ ASTParser::parse_view_node(&inherited_config, view_node) ]
+            },
+            OpenComposeAST::List(config, open_compose_asts) => {
+                let mut inherited_config = config.clone();
+                inherited_config.inherit(box_config);
+                ASTParser::parse_list(&inherited_config, open_compose_asts)
+            },
+            OpenComposeAST::Container(config, container_node) => {
+                let mut inherited_config = config.clone();
+                inherited_config.inherit(box_config);
+                vec![ ASTParser::parse_container_node(&inherited_config, container_node) ]
+            },
         };
         let mut z = 0;
         for mut child in child_controls {
