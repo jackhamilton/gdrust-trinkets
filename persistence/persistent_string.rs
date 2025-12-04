@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::gdrust_trinkets::libs::singletons::TrinketSingletons;
 use crate::gdrust_trinkets::persistence::storage_access::StorageAccessNode;
 use godot::prelude::*;
@@ -32,7 +34,7 @@ impl INode for PersistentString {
         if self.key.is_empty() {
             panic!("Cannot load value for empty key");
         }
-        self.value = storage.load_string(self.key.clone().into()).into();
+        self.value = GString::from_str(&storage.load_string(self.key.clone().into())).expect("Error converting to gstring");
     }
 
     fn exit_tree(&mut self) {

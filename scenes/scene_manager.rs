@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::{fmt::Display, path::PathBuf};
 
 use godot::prelude::*;
@@ -39,7 +40,7 @@ impl SceneManager {
     fn new_with_root_dir(root_dir: String) {
         Gd::from_init_fn(|base| {
             Self {
-                scene_root_dir: root_dir.into(),
+                scene_root_dir: GString::from_str(&root_dir).expect("Could not convert to GString"),
                 base
             }
         });
