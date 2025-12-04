@@ -9,7 +9,7 @@ use godot::classes::Sprite2D;
 use godot::classes::InputEventMouse;
 use godot::classes::InputEventMouseButton;
 
-type EventCallback = (dyn Fn(&mut Gd<GridItem>));
+type EventCallback = dyn Fn(&mut Gd<GridItem>);
 
 #[derive(GodotClass)]
 #[class(init, base=Node2D)]
