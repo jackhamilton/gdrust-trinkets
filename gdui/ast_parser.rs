@@ -7,6 +7,7 @@ use crate::gdrust_trinkets::gdui::container_nodes::row::ASTRowParser;
 use crate::gdrust_trinkets::gdui::view_nodes::{image::ASTImageParser, text::ASTTextParser};
 
 use opencompose_rs::ast::{ContainerNode, OpenComposeAST, ViewNode};
+use opencompose_rs::configs::View::ViewSize;
 use opencompose_rs::configs::View::ViewConfig;
 use godot::classes::Control;
 
@@ -45,7 +46,7 @@ impl ASTParser {
     }
 
     pub fn parse_view_node(node_config: &ViewConfig, node: &ViewNode) -> Gd<Control> {
-        match node {
+        let mut control = match node {
             ViewNode::Image(config, image_config) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
@@ -56,11 +57,13 @@ impl ASTParser {
                 inherited_config.inherit(node_config);
                 ASTTextParser::parse_text(&inherited_config, text_config)
             },
-        }
+        };
+        Self::apply_control_config(node_config, &mut control);
+        control
     }
 
     pub fn parse_container_node(node_config: &ViewConfig, node: &ContainerNode) -> Gd<Control> {
-        match node {
+        let mut control = match node {
             ContainerNode::Row(config, open_compose_ast) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
@@ -80,6 +83,39 @@ impl ASTParser {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
                 ASTButtonParser::parse_button(&inherited_config, open_compose_ast)
+            },
+        };
+        Self::apply_control_config(node_config, &mut control);
+        control
+    }
+
+    pub fn apply_control_config(node_config: &ViewConfig, control: &mut Gd<Control>) {
+        let frame = &node_config.frame;
+        // todo: eliminate clones
+        match (frame.clone().width, frame.clone().height) {
+            (ViewSize::Infinite, ViewSize::Finite(height)) => {
+                let i16_height: i16 = height.try_into().expect("Error casting height");
+                control.set_size(Vector2 { x: 0.0, y: i16_height.into() });
+                control.set_anchor(Side::LEFT, 0.0);
+                control.set_anchor(Side::RIGHT, 1.0);
+            },
+            (ViewSize::Finite(width), ViewSize::Finite(height)) => {
+                let i16_width: i16 = width.try_into().expect("Error casting height");
+                let i16_height: i16 = height.try_into().expect("Error casting height");
+                control.set_size(Vector2 { x: i16_width.into(), y: i16_height.into() });
+
+            },
+            (ViewSize::Finite(width), ViewSize::Infinite) => {
+                let i16_width: i16 = width.try_into().expect("Error casting height");
+                control.set_size(Vector2 { x: i16_width.into(), y: 0.0 });
+                control.set_anchor(Side::TOP, 0.0);
+                control.set_anchor(Side::BOTTOM, 1.0);
+            },
+            (ViewSize::Infinite, ViewSize::Infinite) => {
+                control.set_anchor(Side::LEFT, 0.0);
+                control.set_anchor(Side::RIGHT, 1.0);
+                control.set_anchor(Side::TOP, 0.0);
+                control.set_anchor(Side::BOTTOM, 1.0);
             },
         }
     }
