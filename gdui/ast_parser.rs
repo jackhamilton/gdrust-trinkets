@@ -46,46 +46,54 @@ impl ASTParser {
     }
 
     pub fn parse_view_node(node_config: &ViewConfig, node: &ViewNode) -> Gd<Control> {
+        let final_node_config: Option<ViewConfig>;
         let mut control = match node {
             ViewNode::Image(config, image_config) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
+                final_node_config = Some(inherited_config.clone());
                 ASTImageParser::parse_image(&inherited_config, image_config)
             },
             ViewNode::Text(config, text_config) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
+                final_node_config = Some(inherited_config.clone());
                 ASTTextParser::parse_text(&inherited_config, text_config)
             },
         };
-        Self::apply_control_config(node_config, &mut control);
+        Self::apply_control_config(&final_node_config.expect("Error: node config not carried"), &mut control);
         control
     }
 
     pub fn parse_container_node(node_config: &ViewConfig, node: &ContainerNode) -> Gd<Control> {
+        let final_node_config: Option<ViewConfig>;
         let mut control = match node {
             ContainerNode::Row(config, open_compose_ast) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
+                final_node_config = Some(inherited_config.clone());
                 ASTRowParser::parse_row(&inherited_config, open_compose_ast)
             },
             ContainerNode::Column(config, open_compose_ast) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
+                final_node_config = Some(inherited_config.clone());
                 ASTColumnParser::parse_column(&inherited_config, open_compose_ast)
             },
             ContainerNode::Box(config, open_compose_ast) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
+                final_node_config = Some(inherited_config.clone());
                 ASTBoxParser::parse_box(&inherited_config, open_compose_ast)
             },
             ContainerNode::Button(config, open_compose_ast) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
+                final_node_config = Some(inherited_config.clone());
                 ASTButtonParser::parse_button(&inherited_config, open_compose_ast)
             },
         };
-        Self::apply_control_config(node_config, &mut control);
+        Self::apply_control_config(&final_node_config.expect("Error: node config not carried"), &mut control);
         control
     }
 
@@ -95,21 +103,23 @@ impl ASTParser {
         match (frame.clone().width, frame.clone().height) {
             (ViewSize::Infinite, ViewSize::Finite(height)) => {
                 let i16_height: i16 = height.try_into().expect("Error casting height");
-                control.set_size(Vector2 { x: 0.0, y: i16_height.into() });
+                control.set_custom_minimum_size(Vector2 { x: 0.0, y: i16_height.into() });
                 control.set_anchor(Side::LEFT, 0.0);
                 control.set_anchor(Side::RIGHT, 1.0);
+                godot_print!("applying frame: inf, {i16_height}");
             },
             (ViewSize::Finite(width), ViewSize::Finite(height)) => {
                 let i16_width: i16 = width.try_into().expect("Error casting height");
                 let i16_height: i16 = height.try_into().expect("Error casting height");
-                control.set_size(Vector2 { x: i16_width.into(), y: i16_height.into() });
-
+                control.set_custom_minimum_size(Vector2 { x: i16_width.into(), y: i16_height.into() });
+                godot_print!("applying frame: {i16_width}, {i16_height}");
             },
             (ViewSize::Finite(width), ViewSize::Infinite) => {
                 let i16_width: i16 = width.try_into().expect("Error casting height");
-                control.set_size(Vector2 { x: i16_width.into(), y: 0.0 });
+                control.set_custom_minimum_size(Vector2 { x: i16_width.into(), y: 0.0 });
                 control.set_anchor(Side::TOP, 0.0);
                 control.set_anchor(Side::BOTTOM, 1.0);
+                godot_print!("applying frame: {i16_width}, inf");
             },
             (ViewSize::Infinite, ViewSize::Infinite) => {
                 control.set_anchor(Side::LEFT, 0.0);

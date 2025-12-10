@@ -1,4 +1,4 @@
-use godot::classes::{Label};
+use godot::classes::{Label, LabelSettings};
 use godot::prelude::*;
 
 use godot::classes::{Control};
@@ -10,6 +10,12 @@ impl ASTTextParser {
     pub fn parse_text(view_config: &ViewConfig, config: &TextConfig) -> Gd<Control> {
         let mut label = Label::new_alloc();
         label.set_text(config.text);
+        let mut label_settings = LabelSettings::new_gd();
+        label_settings.set_font_size(config.font_size.try_into().expect("Invalid label size"));
+        if let Some(color) = view_config.foreground_color.clone() {
+            label_settings.set_font_color(Color::from_rgba(color.r, color.g, color.b, color.a));
+        }
+        label.set_label_settings(&label_settings);
         label.upcast()
     }
 }
