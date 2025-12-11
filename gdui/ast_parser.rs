@@ -1,4 +1,5 @@
 use godot::prelude::*;
+use opencompose_rs::configs::view_subtypes::view_alignment::Alignment;
 
 use crate::gdrust_trinkets::gdui::container_nodes::button::ASTButtonParser;
 use crate::gdrust_trinkets::gdui::container_nodes::box_parser::ASTBoxParser;
@@ -7,7 +8,7 @@ use crate::gdrust_trinkets::gdui::container_nodes::row::ASTRowParser;
 use crate::gdrust_trinkets::gdui::view_nodes::{image::ASTImageParser, text::ASTTextParser};
 
 use opencompose_rs::ast::{ContainerNode, OpenComposeAST, ViewNode};
-use opencompose_rs::configs::View::ViewSize;
+use opencompose_rs::configs::view_subtypes::view_size::ViewSize;
 use opencompose_rs::configs::View::ViewConfig;
 use godot::classes::Control;
 
@@ -86,11 +87,11 @@ impl ASTParser {
                 final_node_config = Some(inherited_config.clone());
                 ASTBoxParser::parse_box(&inherited_config, open_compose_ast)
             },
-            ContainerNode::Button(config, open_compose_ast) => {
+            ContainerNode::Button(config, button_config, open_compose_ast) => {
                 let mut inherited_config = config.clone();
                 inherited_config.inherit(node_config);
                 final_node_config = Some(inherited_config.clone());
-                ASTButtonParser::parse_button(&inherited_config, open_compose_ast)
+                ASTButtonParser::parse_button(&inherited_config, &button_config, open_compose_ast)
             },
         };
         Self::apply_control_config(&final_node_config.expect("Error: node config not carried"), &mut control);
@@ -98,35 +99,107 @@ impl ASTParser {
     }
 
     pub fn apply_control_config(node_config: &ViewConfig, control: &mut Gd<Control>) {
-        let frame = &node_config.frame;
-        // todo: eliminate clones
-        match (frame.clone().width, frame.clone().height) {
-            (ViewSize::Infinite, ViewSize::Finite(height)) => {
-                let i16_height: i16 = height.try_into().expect("Error casting height");
-                control.set_custom_minimum_size(Vector2 { x: 0.0, y: i16_height.into() });
-                control.set_anchor(Side::LEFT, 0.0);
-                control.set_anchor(Side::RIGHT, 1.0);
-                godot_print!("applying frame: inf, {i16_height}");
-            },
-            (ViewSize::Finite(width), ViewSize::Finite(height)) => {
-                let i16_width: i16 = width.try_into().expect("Error casting height");
-                let i16_height: i16 = height.try_into().expect("Error casting height");
-                control.set_custom_minimum_size(Vector2 { x: i16_width.into(), y: i16_height.into() });
-                godot_print!("applying frame: {i16_width}, {i16_height}");
-            },
-            (ViewSize::Finite(width), ViewSize::Infinite) => {
-                let i16_width: i16 = width.try_into().expect("Error casting height");
-                control.set_custom_minimum_size(Vector2 { x: i16_width.into(), y: 0.0 });
-                control.set_anchor(Side::TOP, 0.0);
-                control.set_anchor(Side::BOTTOM, 1.0);
-                godot_print!("applying frame: {i16_width}, inf");
-            },
-            (ViewSize::Infinite, ViewSize::Infinite) => {
-                control.set_anchor(Side::LEFT, 0.0);
-                control.set_anchor(Side::RIGHT, 1.0);
-                control.set_anchor(Side::TOP, 0.0);
-                control.set_anchor(Side::BOTTOM, 1.0);
-            },
+        let frame = node_config.frame;
+        let alignment = node_config.alignment;
+        if alignment.is_none() {
+            match (frame.width, frame.height) {
+                (ViewSize::Finite(width), ViewSize::Finite(height)) => {
+                    let i16_width: i16 = width.try_into().expect("Error casting height");
+                    let i16_height: i16 = height.try_into().expect("Error casting height");
+                    control.set_custom_minimum_size(Vector2 { x: i16_width.into(), y: i16_height.into() });
+                },
+                (ViewSize::Finite(width), ViewSize::Infinite) => {
+                    let i16_width: i16 = width.try_into().expect("Error casting height");
+                    control.set_custom_minimum_size(Vector2 { x: i16_width.into(), y: 0.0 });
+                    control.set_anchor_and_offset(Side::BOTTOM, 1.0, 0.0);
+                    control.set_anchor_and_offset(Side::TOP, 0.0, 0.0);
+                    control.set_anchor_and_offset(Side::RIGHT, 0.0, i16_width.into());
+                    control.set_anchor_and_offset(Side::LEFT, 0.0, 0.0);
+                },
+                (ViewSize::Infinite, ViewSize::Finite(height)) => {
+                    let i16_height: i16 = height.try_into().expect("Error casting height");
+                    control.set_custom_minimum_size(Vector2 { x: 0.0, y: i16_height.into() });
+                    control.set_anchor_and_offset(Side::BOTTOM, 0.0, i16_height.into());
+                    control.set_anchor_and_offset(Side::TOP, 0.0, 0.0);
+                    control.set_anchor_and_offset(Side::RIGHT, 1.0, 0.0);
+                    control.set_anchor_and_offset(Side::LEFT, 0.0, 0.0);
+                },
+                (ViewSize::Infinite, ViewSize::Infinite) => {
+                    control.set_anchor_and_offset(Side::RIGHT, 1.0, 0.0);
+                    control.set_anchor_and_offset(Side::LEFT, 0.0, 0.0);
+                    control.set_anchor_and_offset(Side::BOTTOM, 1.0, 0.0);
+                    control.set_anchor_and_offset(Side::TOP, 0.0, 0.0);
+                },
+            }
+        } else {
+            // Alignment with minimum size
+            let align = alignment.expect("Could not unwrap alignment");
+            match align.horizontal {
+                Alignment::Start => {
+                    let (left_offset, right_offset) = match frame.width {
+                        ViewSize::Infinite => (0.0, 0.0),
+                        ViewSize::Finite(width) =>(0.0, width as f32),
+                    };
+                    control.set_anchor_and_offset(Side::RIGHT, 0.0, right_offset);
+                    control.set_anchor_and_offset(Side::LEFT, 0.0, left_offset);
+                },
+                Alignment::Center => {
+                    let (left_offset, right_offset) = match frame.width {
+                        ViewSize::Infinite => (0.0, 0.0),
+                        ViewSize::Finite(width) => {
+                            let half_width = (width as f32) / 2.0;
+                            (-half_width, half_width)
+                        }
+                    };
+                    control.set_anchor_and_offset(Side::RIGHT, 0.5, right_offset);
+                    control.set_anchor_and_offset(Side::LEFT, 0.5, left_offset);
+                },
+                Alignment::End => {
+                    let (left_offset, right_offset) = match frame.width {
+                        ViewSize::Infinite => (0.0, 0.0),
+                        ViewSize::Finite(width) => (-(width as f32), 0.0),
+                    };
+                    control.set_anchor_and_offset(Side::RIGHT, 1.0, right_offset);
+                    control.set_anchor_and_offset(Side::LEFT, 1.0, left_offset);
+                },
+                Alignment::Fill => {
+                    control.set_anchor_and_offset(Side::RIGHT, 1.0, 0.0);
+                    control.set_anchor_and_offset(Side::LEFT, 0.0, 0.0);
+                },
+            };
+            match align.vertical {
+                Alignment::Start => {
+                    let (left_offset, right_offset) = match frame.height {
+                        ViewSize::Infinite => (0.0, 0.0),
+                        ViewSize::Finite(height) => (0.0, height as f32),
+                    };
+                    control.set_anchor_and_offset(Side::BOTTOM, 0.0, right_offset);
+                    control.set_anchor_and_offset(Side::TOP, 0.0, left_offset);
+                },
+                Alignment::Center => {
+                    let (left_offset, right_offset) = match frame.height {
+                        ViewSize::Infinite => (0.0, 0.0),
+                        ViewSize::Finite(height) => {
+                            let half_height = (height as f32) / 2.0;
+                            (-half_height, half_height)
+                        }
+                    };
+                    control.set_anchor_and_offset(Side::BOTTOM, 0.5, right_offset);
+                    control.set_anchor_and_offset(Side::TOP, 0.5, left_offset);
+                },
+                Alignment::End => {
+                    let (left_offset, right_offset) = match frame.height {
+                        ViewSize::Infinite => (0.0, 0.0),
+                        ViewSize::Finite(height) =>(-(height as f32), 0.0),
+                    };
+                    control.set_anchor_and_offset(Side::BOTTOM, 1.0, right_offset);
+                    control.set_anchor_and_offset(Side::TOP, 1.0, left_offset);
+                },
+                Alignment::Fill => {
+                    control.set_anchor_and_offset(Side::BOTTOM, 1.0, 0.0);
+                    control.set_anchor_and_offset(Side::TOP, 0.0, 0.0);
+                },
+            };
         }
     }
 }

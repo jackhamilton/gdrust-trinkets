@@ -2,13 +2,14 @@ use godot::prelude::*;
 
 use godot::classes::{Button, Control};
 use opencompose_rs::ast::OpenComposeAST;
+use opencompose_rs::configs::Button::ButtonConfig;
 use opencompose_rs::configs::View::ViewConfig;
 
 use crate::gdrust_trinkets::gdui::ast_parser::ASTParser;
 
 pub struct ASTButtonParser {}
 impl ASTButtonParser {
-    pub fn parse_button(box_config: &ViewConfig, children: &OpenComposeAST) -> Gd<Control> {
+    pub fn parse_button(box_config: &ViewConfig, button_config: &ButtonConfig, children: &OpenComposeAST) -> Gd<Control> {
         let mut button = Button::new_alloc();
         let child_controls: Vec<Gd<Control>> = match children {
             OpenComposeAST::View(config, view_node) => {
@@ -33,6 +34,10 @@ impl ASTButtonParser {
             z += 1;
             button.add_child(&child);
         }
+        let button_action = button_config.associated_action.clone();
+        button.signals().pressed().connect(move || {
+            (button_action)();
+        });
         button.upcast()
     }
 }
